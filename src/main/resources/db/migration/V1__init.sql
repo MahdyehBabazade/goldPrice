@@ -1,0 +1,7 @@
+CREATE TABLE prices(
+    id BIGINT NOT NULL PRIMARY KEY,
+    tgju DOUBLE PRECISION NOT NULL,
+    talasea DOUBLE PRECISION NOT NULL
+);
+
+INSERT INTO prices(id, tgju, talasea) VALUES (1, 1.0, 1.0)

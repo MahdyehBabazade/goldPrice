@@ -2,17 +2,16 @@ package com.example.goldPrice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestClient;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableCaching
+@EnableScheduling
 public class GoldPriceApplication {
 
-	public static void main(String[] args) {
+	static void main(String[] args) {
 		SpringApplication.run(GoldPriceApplication.class, args);
 	}
-	@Bean
-	public RestClient restClient() {
-		return RestClient.create();
-	}
+
 }

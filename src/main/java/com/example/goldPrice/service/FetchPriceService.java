@@ -1,63 +1,60 @@
 package com.example.goldPrice.service;
 
-import com.example.goldPrice.repository.PriceRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.goldPrice.client.PriceApiClient;
+import com.example.goldPrice.dto.TalaseaResponse;
+import com.example.goldPrice.dto.TgjuResponse;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import retrofit2.Response;
 
 @Service
 public class FetchPriceService {
     private final RestClient restClient;
-    private final ObjectMapper objectMapper;
+    private final PriceApiClient priceApiClient;
+    private final TgjuService tgjuService;
+    private final TalaseaService talaseaService;
 
-    public FetchPriceService(RestClient restClient) {
+
+    public FetchPriceService(RestClient restClient, PriceApiClient priceApiClient,
+                             TgjuService tgjuService, TalaseaService talaseaService) {
         this.restClient = restClient;
-        this.objectMapper = new ObjectMapper();
+        this.priceApiClient = priceApiClient;
+        this.tgjuService = tgjuService;
+        this.talaseaService = talaseaService;
 
     }
-    public Double fetchTgjuPrice() {
-        try {
-            String jsonResponse = restClient.get()
-                    .uri("https://call.tgju.org/ajax.json")
-                    .retrieve()
-                    .body(String.class);
 
-            if (jsonResponse != null && !jsonResponse.isEmpty()) {
-                JsonNode root = objectMapper.readTree(jsonResponse);
-                JsonNode current = root.get("current");
-                if (current != null && current.has("geram18")) {
-                    JsonNode geram18Node = current.get("geram18");
-                    if (geram18Node.has("p")) {
-                        String rawPrice = geram18Node.get("p").asText();
-                        return Double.parseDouble(normalizeNumber(rawPrice))/10000.0;
-                    }
-                }
+    @Scheduled(fixedRate = 60000)
+    public void fetchTgjuPrice() {
+        try {
+            TgjuResponse response = restClient.get()
+                    .uri("ajax.json")
+                    .retrieve()
+                    .body(TgjuResponse.class);
+
+            if (response != null && response.current() != null
+                    && response.current().geram18() != null) {
+                tgjuService.updateRecord(Double.parseDouble(normalizeNumber(response.current()
+                        .geram18().price()))/10000.0);
             }
         } catch (Exception e) {
             System.err.println("Error fetching gold price from TGJU: " + e.getMessage());
         }
-        return null;
     }
 
-    public Double fetchTalaseaPrice() {
+    @Scheduled(fixedRate = 60000)
+    public void fetchTalaseaPrice() {
         try {
-            String jsonResponse = restClient.get()
-                    .uri("https://api.talasea.ir/api/market/getGoldPrice")
-                    .retrieve()
-                    .body(String.class);
+            Response<TalaseaResponse> response= priceApiClient.getTalaseaPrice()
+                    .execute();
 
-            if (jsonResponse != null && !jsonResponse.isEmpty()) {
-                JsonNode root = objectMapper.readTree(jsonResponse);
-                if (root.has("price")) {
-                    String rawPrice = root.get("price").asText();
-                    return Double.parseDouble(normalizeNumber(rawPrice));
-                }
+            if (response.body() != null && response.isSuccessful()) {
+                talaseaService.updateRecord(Double.parseDouble(normalizeNumber(response.body().price())));
             }
         } catch (Exception e) {
             System.err.println("Error fetching gold price from TALASEA: " + e.getMessage());
         }
-        return null;
     }
 
     private String normalizeNumber(String input) {
