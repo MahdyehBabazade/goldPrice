@@ -1,0 +1,2 @@
+ALTER TABLE tgju ADD COLUMN fetched_at VARCHAR(100);
+ALTER TABLE talasea ADD COLUMN fetched_at VARCHAR(100);

@@ -3,6 +3,7 @@ package com.example.goldPrice.service;
 import com.example.goldPrice.model.PriceProviders;
 import com.example.goldPrice.model.TgjuPrice;
 import com.example.goldPrice.repository.PriceProviderRepository;
+import com.example.goldPrice.repository.StreamRepository;
 import com.example.goldPrice.repository.TgjuRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,7 +25,7 @@ public class TgjuService {
     }
 
     @CacheEvict(value = {"tgjuPrice", "finalGoldPrice"}, allEntries = true)
-    public void updateRecord(Double tgjuP) {
+    public void updateRecord(Double tgjuP, String timeFetched) {
 
         //Double tgjuP = fetchPriceService.fetchTgjuPrice();
 
@@ -38,6 +39,7 @@ public class TgjuService {
 
         if (tgjuP != null && tgjuP > 0) {
             goldPrices.setPrice(tgjuP);
+            goldPrices.setFetchedAt(timeFetched);
             PriceProviders provider = priceProviderRepository.findByName("tgju")
                     .orElseGet(() -> {
                         PriceProviders p = new PriceProviders();
@@ -47,6 +49,11 @@ public class TgjuService {
             goldPrices.setPriceProvider(provider);
         }
         tgjuRepository.save(goldPrices);
+
+
+        StreamRepository streamRepository = new StreamRepository();
+        streamRepository.addToStream("price_stream", goldPrices);
+
     }
 
     @Cacheable(value = "tgjuPrice", key = "'latest'")

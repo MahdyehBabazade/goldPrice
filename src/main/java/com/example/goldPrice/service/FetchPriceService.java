@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import retrofit2.Response;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class FetchPriceService {
     private final RestClient restClient;
@@ -33,10 +36,11 @@ public class FetchPriceService {
                     .retrieve()
                     .body(TgjuResponse.class);
 
+            String fetchTimeFromSource = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if (response != null && response.current() != null
                     && response.current().geram18() != null) {
                 tgjuService.updateRecord(Double.parseDouble(normalizeNumber(response.current()
-                        .geram18().price()))/10000.0);
+                        .geram18().price()))/10000.0, fetchTimeFromSource);
             }
         } catch (Exception e) {
             System.err.println("Error fetching gold price from TGJU: " + e.getMessage());
@@ -49,8 +53,9 @@ public class FetchPriceService {
             Response<TalaseaResponse> response= priceApiClient.getTalaseaPrice()
                     .execute();
 
+            String fetchTimeFromSource = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if (response.body() != null && response.isSuccessful()) {
-                talaseaService.updateRecord(Double.parseDouble(normalizeNumber(response.body().price())));
+                talaseaService.updateRecord(Double.parseDouble(normalizeNumber(response.body().price())), fetchTimeFromSource);
             }
         } catch (Exception e) {
             System.err.println("Error fetching gold price from TALASEA: " + e.getMessage());

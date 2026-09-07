@@ -3,6 +3,7 @@ package com.example.goldPrice.service;
 import com.example.goldPrice.model.PriceProviders;
 import com.example.goldPrice.model.TalaseaPrice;
 import com.example.goldPrice.repository.PriceProviderRepository;
+import com.example.goldPrice.repository.StreamRepository;
 import com.example.goldPrice.repository.TalaseaRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,7 +23,7 @@ public class TalaseaService {
     }
 
     @CacheEvict(value = {"talaseaPrice", "finalGoldPrice"}, allEntries = true)
-    public void updateRecord(Double talaseaP) {
+    public void updateRecord(Double talaseaP, String timeFetched) {
 
         //Double talaseaP = fetchPriceService.fetchTalaseaPrice();
 
@@ -35,7 +36,7 @@ public class TalaseaService {
 
         if (talaseaP != null && talaseaP > 0) {
             goldPrices.setPrice(talaseaP);
-
+            goldPrices.setFetchedAt(timeFetched);
             PriceProviders provider = priceProviderRepository.findByName("talasea")
                     .orElseGet(() -> {
                         PriceProviders p = new PriceProviders();
@@ -45,6 +46,9 @@ public class TalaseaService {
             goldPrices.setPriceProvider(provider);
         }
         talaseaRepository.save(goldPrices);
+
+        StreamRepository streamRepository = new StreamRepository();
+        streamRepository.addToStream("price_stream", goldPrices);
     }
 
     @Cacheable(value = "talaseaPrice", key = "'latest'")

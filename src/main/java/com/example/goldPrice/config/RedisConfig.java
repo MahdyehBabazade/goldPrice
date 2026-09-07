@@ -1,12 +1,17 @@
-package com.example.goldPrice.config;
+package com.example.goldPrice.config; // پکیج کانفیگ پروژه شما
 
-import redis.clients.jedis.RedisClient;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisConfig {
-    private static final RedisClient jedis = RedisClient.create
-            ("redis://localhost:6379");
+    private static JedisPool jedisPool;
 
-    public static RedisClient getJedis() {
-        return jedis;
+    public static JedisPool getPool() {
+        if (jedisPool == null) {
+            JedisPoolConfig poolConfig = new JedisPoolConfig();
+            poolConfig.setMaxTotal(10);
+            jedisPool = new JedisPool(poolConfig, "localhost", 6379);
+        }
+        return jedisPool;
     }
 }

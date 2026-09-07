@@ -12,6 +12,9 @@ public class TgjuPrice {
     @Column
     private double price;
 
+    @Column
+    private String fetchedAt; ;
+
     @OneToOne
     @JoinColumn(name = "provider_id")
     private PriceProviders priceProvider;
@@ -26,13 +29,24 @@ public class TgjuPrice {
         this.id = id;
     }
 
-    @JsonValue
     public double getPrice() {
         return price;
     }
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public String getFetchedAt() {
+        return fetchedAt;
+    }
+
+    public void setFetchedAt(String fetchedAt) {
+        this.fetchedAt = fetchedAt;
+    }
+
+    public PriceProviders getPriceProvider() {
+        return priceProvider;
     }
 
     public void setPriceProvider(PriceProviders priceProvider) {
