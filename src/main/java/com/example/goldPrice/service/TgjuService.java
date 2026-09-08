@@ -32,7 +32,7 @@ public class TgjuService {
 
         //Double tgjuP = fetchPriceService.fetchTgjuPrice();
 
-        TgjuPrice goldPrices = tgjuRepository.findById(1L)
+        TgjuPrice goldPrice = tgjuRepository.findById(1L)
                 .orElseGet(() -> {
                     TgjuPrice newPrices = new TgjuPrice();
                     newPrices.setId(1L);
@@ -41,18 +41,19 @@ public class TgjuService {
                 });
 
         if (tgjuP != null && tgjuP > 0) {
-            goldPrices.setPrice(tgjuP);
-            goldPrices.setFetchedAt(timeFetched);
+            goldPrice.setPrice(tgjuP);
+            goldPrice.setFetchedAt(timeFetched);
             PriceProviders provider = priceProviderRepository.findByName("tgju")
                     .orElseGet(() -> {
                         PriceProviders p = new PriceProviders();
                         p.setName("tgju");
                         return priceProviderRepository.save(p);
                     });
-            goldPrices.setPriceProvider(provider);
-            streamRepository.addToStream("price_stream", goldPrices);
+            goldPrice.setPriceProvider(provider);
+            streamRepository.addToStream("price_stream", String.valueOf(goldPrice.getPrice()),
+                    goldPrice.getFetchedAt(), goldPrice.getPriceProvider().getName());
         }
-        tgjuRepository.save(goldPrices);
+        tgjuRepository.save(goldPrice);
 
 
     }

@@ -20,16 +20,13 @@ public class StreamRepository {
         this.objectMapper = objectMapper;
     }
 
-    public String addToStream(String key, Object object) {
-        try {
-            String jsonToString = objectMapper.writeValueAsString(object);
-            Map<String, String> streamData = new HashMap<>();
-            streamData.put("data", jsonToString);
+    public String addToStream(String key, String price, String fetchedAt, String priceProviderName) {
 
-            StreamEntryID id = jedis.xadd(key, StreamEntryID.NEW_ENTRY, streamData);
-            return id.toString();
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("error converting to JSON", e);
-        }
+        Map<String, String> streamData = new HashMap<>();
+        streamData.put("Price", price);
+        streamData.put("fetchedAt", fetchedAt);
+        streamData.put("Price Provider", priceProviderName);
+        StreamEntryID id = jedis.xadd(key, StreamEntryID.NEW_ENTRY, streamData);
+        return id.toString();
     }
 }

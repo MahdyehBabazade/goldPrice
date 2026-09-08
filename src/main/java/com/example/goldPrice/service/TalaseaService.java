@@ -30,7 +30,7 @@ public class TalaseaService {
 
         //Double talaseaP = fetchPriceService.fetchTalaseaPrice();
 
-        TalaseaPrice goldPrices = talaseaRepository.findById(1L)
+        TalaseaPrice goldPrice = talaseaRepository.findById(1L)
                 .orElseGet(() -> {
                     TalaseaPrice newPrices = new TalaseaPrice();
                     newPrices.setId(1L);
@@ -38,19 +38,20 @@ public class TalaseaService {
                 });
 
         if (talaseaP != null && talaseaP > 0) {
-            goldPrices.setPrice(talaseaP);
-            goldPrices.setFetchedAt(timeFetched);
+            goldPrice.setPrice(talaseaP);
+            goldPrice.setFetchedAt(timeFetched);
             PriceProviders provider = priceProviderRepository.findByName("talasea")
                     .orElseGet(() -> {
                         PriceProviders p = new PriceProviders();
                         p.setName("talasea");
                         return priceProviderRepository.save(p);
                     });
-            goldPrices.setPriceProvider(provider);
+            goldPrice.setPriceProvider(provider);
 
-            streamRepository.addToStream("price_stream", goldPrices);
+            streamRepository.addToStream("price_stream", String.valueOf(goldPrice.getPrice()),
+                    goldPrice.getFetchedAt(), goldPrice.getPriceProvider().getName());
         }
-        talaseaRepository.save(goldPrices);
+        talaseaRepository.save(goldPrice);
 
 
     }
