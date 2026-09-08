@@ -15,13 +15,16 @@ import org.springframework.web.server.ResponseStatusException;
 public class TgjuService {
     private final TgjuRepository tgjuRepository;
     private final PriceProviderRepository priceProviderRepository;
+    private final StreamRepository streamRepository;
 
 
 
     public TgjuService(TgjuRepository tgjuRepository,
-                       PriceProviderRepository priceProviderRepository) {
+                       PriceProviderRepository priceProviderRepository,
+                       StreamRepository streamRepository) {
         this.tgjuRepository = tgjuRepository;
         this.priceProviderRepository = priceProviderRepository;
+        this.streamRepository = streamRepository;
     }
 
     @CacheEvict(value = {"tgjuPrice", "finalGoldPrice"}, allEntries = true)
@@ -47,12 +50,10 @@ public class TgjuService {
                         return priceProviderRepository.save(p);
                     });
             goldPrices.setPriceProvider(provider);
+            streamRepository.addToStream("price_stream", goldPrices);
         }
         tgjuRepository.save(goldPrices);
 
-
-        StreamRepository streamRepository = new StreamRepository();
-        streamRepository.addToStream("price_stream", goldPrices);
 
     }
 

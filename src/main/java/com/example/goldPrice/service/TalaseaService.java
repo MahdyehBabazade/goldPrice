@@ -15,11 +15,14 @@ import org.springframework.web.server.ResponseStatusException;
 public class TalaseaService {
     private final TalaseaRepository talaseaRepository;
     private final PriceProviderRepository priceProviderRepository;
+    private final StreamRepository streamRepository;
 
     public TalaseaService(TalaseaRepository talaseaRepository,
-                          PriceProviderRepository priceProviderRepository) {
+                          PriceProviderRepository priceProviderRepository,
+                          StreamRepository streamRepository) {
         this.talaseaRepository = talaseaRepository;
         this.priceProviderRepository = priceProviderRepository;
+        this.streamRepository = streamRepository;
     }
 
     @CacheEvict(value = {"talaseaPrice", "finalGoldPrice"}, allEntries = true)
@@ -44,11 +47,12 @@ public class TalaseaService {
                         return priceProviderRepository.save(p);
                     });
             goldPrices.setPriceProvider(provider);
+
+            streamRepository.addToStream("price_stream", goldPrices);
         }
         talaseaRepository.save(goldPrices);
 
-        StreamRepository streamRepository = new StreamRepository();
-        streamRepository.addToStream("price_stream", goldPrices);
+
     }
 
     @Cacheable(value = "talaseaPrice", key = "'latest'")
