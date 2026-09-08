@@ -4,7 +4,7 @@ spring:
 
   data:
     redis:
-      host: 182.168.98.27
+      host: 192.168.98.27
       port: 6379
       client-type: jedis
 
