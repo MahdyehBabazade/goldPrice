@@ -35,18 +35,6 @@ public class LogInterceptor implements ClientHttpRequestInterceptor {
         logger.info("Status text: {}", response.getStatusText());
         logger.info("Headers: {}", response.getHeaders());
 
-        String responseBody = readResponseBody(response);
-        logger.info("Body: {}", responseBody);
-
         return response;
-    }
-
-    private String readResponseBody(ClientHttpResponse response) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.getBody(), StandardCharsets.UTF_8))) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        } catch (IOException e) {
-            logger.error("Failed to read response body", e);
-            return "[Error reading body]";
-        }
     }
 }

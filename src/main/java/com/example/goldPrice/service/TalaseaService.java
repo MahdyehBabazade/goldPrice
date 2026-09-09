@@ -5,30 +5,34 @@ import com.example.goldPrice.model.TalaseaPrice;
 import com.example.goldPrice.repository.PriceProviderRepository;
 import com.example.goldPrice.repository.StreamRepository;
 import com.example.goldPrice.repository.TalaseaRepository;
+import com.example.goldPrice.repository.TimeSeriesRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @Service
 public class TalaseaService {
     private final TalaseaRepository talaseaRepository;
     private final PriceProviderRepository priceProviderRepository;
     private final StreamRepository streamRepository;
+    private final TimeSeriesRepository timeSeriesRepository;
 
     public TalaseaService(TalaseaRepository talaseaRepository,
                           PriceProviderRepository priceProviderRepository,
-                          StreamRepository streamRepository) {
+                          StreamRepository streamRepository,
+                          TimeSeriesRepository timeSeriesRepository) {
         this.talaseaRepository = talaseaRepository;
         this.priceProviderRepository = priceProviderRepository;
         this.streamRepository = streamRepository;
+        this.timeSeriesRepository = timeSeriesRepository;
     }
 
     @CacheEvict(value = {"talaseaPrice", "finalGoldPrice"}, allEntries = true)
     public void updateRecord(Double talaseaP, String timeFetched) {
-
-        //Double talaseaP = fetchPriceService.fetchTalaseaPrice();
 
         TalaseaPrice goldPrice = talaseaRepository.findById(1L)
                 .orElseGet(() -> {
@@ -46,18 +50,24 @@ public class TalaseaService {
                         p.setName("talasea");
                         return priceProviderRepository.save(p);
                     });
-            goldPrice.setPriceProvider(provider);
 
+            goldPrice.setPriceProvider(provider);
             streamRepository.addToStream("price_stream", String.valueOf(goldPrice.getPrice()),
                     goldPrice.getFetchedAt(), goldPrice.getPriceProvider().getName());
+            timeSeriesRepository.addToTimeSeries("price_ts:talasea", goldPrice.getPrice());
         }
         talaseaRepository.save(goldPrice);
-
-
     }
 
     @Cacheable(value = "talaseaPrice", key = "'latest'")
     public TalaseaPrice getLatestPrice() {
-        return talaseaRepository.findById(1L).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Talasea price record not found"));
+        Map<String, String> res= streamRepository.readLatestPrice("price_stream", "talasea");
+        TalaseaPrice talaseaPrice = new TalaseaPrice();
+        talaseaPrice.setPrice(Double.parseDouble(res.get("price")));
+        talaseaPrice.setFetchedAt(res.get("fetchedAt"));
+        PriceProviders provider = new PriceProviders();
+        provider.setName(res.get("providerName"));
+        talaseaPrice.setPriceProvider(provider);
+        return talaseaPrice;
     }
 }
