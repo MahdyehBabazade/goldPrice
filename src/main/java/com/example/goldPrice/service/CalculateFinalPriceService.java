@@ -30,15 +30,13 @@ public class CalculateFinalPriceService {
 
     @Cacheable(value = "finalGoldPrice", key = "'calculated'")
     public double calcGoldPrice() {
-        TalaseaPrice currentTalaseaPrice = talaseaService.getLatestPrice();
-        TgjuPrice currentTgjuPrice = tgjuService.getLatestPrice();
+        Double currentTalaseaPrice = talaseaService.getLatestPrice();
+        Double currentTgjuPrice = tgjuService.getLatestPrice();
         if (currentTalaseaPrice == null || currentTgjuPrice == null) {
             return 0.0;
         }
 
-        double tgjuP = currentTgjuPrice.getPrice();
-        double talaseaP = currentTalaseaPrice.getPrice();
-        return (tgjuW * tgjuP + talaseaW * talaseaP) / (tgjuW + talaseaW);
+        return (tgjuW * currentTgjuPrice + talaseaW * currentTalaseaPrice) / (tgjuW + talaseaW);
     }
 
     @CacheEvict(value = "finalGoldPrice", allEntries = true)

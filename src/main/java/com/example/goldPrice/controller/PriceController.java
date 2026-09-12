@@ -42,8 +42,8 @@ public class PriceController {
 
     @GetMapping("/calculated-price")
     public Map<String, Object> getFinalPrice() {
-        TgjuPrice updatedTgjuPrice = tgjuService.getLatestPrice();
-        TalaseaPrice updatedTalaseaPrice = talaseaService.getLatestPrice();
+        double updatedTgjuPrice = tgjuService.getLatestPrice();
+        double updatedTalaseaPrice = talaseaService.getLatestPrice();
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("rawTgjuPrice", updatedTgjuPrice);

@@ -60,14 +60,8 @@ public class TalaseaService {
     }
 
     @Cacheable(value = "talaseaPrice", key = "'latest'")
-    public TalaseaPrice getLatestPrice() {
+    public double getLatestPrice() {
         Map<String, String> res= streamRepository.readLatestPrice("price_stream", "talasea");
-        TalaseaPrice talaseaPrice = new TalaseaPrice();
-        talaseaPrice.setPrice(Double.parseDouble(res.get("price")));
-        talaseaPrice.setFetchedAt(res.get("fetchedAt"));
-        PriceProviders provider = new PriceProviders();
-        provider.setName(res.get("providerName"));
-        talaseaPrice.setPriceProvider(provider);
-        return talaseaPrice;
+        return Double.parseDouble(res.get("price"));
     }
 }

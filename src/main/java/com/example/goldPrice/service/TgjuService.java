@@ -63,14 +63,8 @@ public class TgjuService {
     }
 
     @Cacheable(value = "tgjuPrice", key = "'latest'")
-    public TgjuPrice getLatestPrice() {
+    public double getLatestPrice() {
         Map<String, String> res= streamRepository.readLatestPrice("price_stream", "tgju");
-        TgjuPrice tgjuPrice = new TgjuPrice();
-        tgjuPrice.setPrice(Double.parseDouble(res.get("price")));
-        tgjuPrice.setFetchedAt(res.get("fetchedAt"));
-        PriceProviders provider = new PriceProviders();
-        provider.setName(res.get("providerName"));
-        tgjuPrice.setPriceProvider(provider);
-        return tgjuPrice;
+        return Double.parseDouble(res.get("price"));
     }
 }
