@@ -60,8 +60,12 @@ public class TalaseaService {
     }
 
     @Cacheable(value = "talaseaPrice", key = "'latest'")
+//    public double getLatestPrice() {
+//        Map<String, String> res= streamRepository.readLatestPrice("price_stream", "talasea");
+//        return Double.parseDouble(res.get("price"));
+//    }
+
     public double getLatestPrice() {
-        Map<String, String> res= streamRepository.readLatestPrice("price_stream", "talasea");
-        return Double.parseDouble(res.get("price"));
+        return timeSeriesRepository.readLatestPrice("price_ts:talasea");
     }
 }

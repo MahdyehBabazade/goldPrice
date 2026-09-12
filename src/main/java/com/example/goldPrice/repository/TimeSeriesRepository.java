@@ -37,4 +37,8 @@ public class TimeSeriesRepository {
             }
         }
     }
+     public double readLatestPrice(String provider_key) {
+        TSElement tsElement = jedis.tsGet(provider_key);
+        return tsElement.getValue();
+     }
 }
