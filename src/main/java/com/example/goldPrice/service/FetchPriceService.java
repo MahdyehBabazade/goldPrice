@@ -3,6 +3,7 @@ package com.example.goldPrice.service;
 import com.example.goldPrice.client.PriceApiClient;
 import com.example.goldPrice.dto.TalaseaResponse;
 import com.example.goldPrice.dto.TgjuResponse;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -29,6 +30,7 @@ public class FetchPriceService {
     }
 
     @Scheduled(fixedRate = 60000)
+    @CacheEvict(value = "finalGoldPrice", allEntries = true)
     public void fetchTgjuPrice() {
         try {
             TgjuResponse response = restClient.get()
@@ -48,6 +50,7 @@ public class FetchPriceService {
     }
 
     @Scheduled(fixedRate = 60000)
+    @CacheEvict(value = "finalGoldPrice", allEntries = true)
     public void fetchTalaseaPrice() {
         try {
             Response<TalaseaResponse> response= priceApiClient.getTalaseaPrice()

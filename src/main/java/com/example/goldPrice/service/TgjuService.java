@@ -32,7 +32,6 @@ public class TgjuService {
         this.timeSeriesRepository = timeSeriesRepository;
     }
 
-    @CacheEvict(value = {"tgjuPrice", "finalGoldPrice"}, allEntries = true)
     public void updateRecord(Double tgjuP, String timeFetched) {
 
         TgjuPrice goldPrice = tgjuRepository.findById(1L)
@@ -62,7 +61,6 @@ public class TgjuService {
         tgjuRepository.save(goldPrice);
     }
 
-    @Cacheable(value = "tgjuPrice", key = "'latest'")
 //    public double getLatestPrice() {
 //        Map<String, String> res= streamRepository.readLatestPrice("price_stream", "tgju");
 //        return Double.parseDouble(res.get("price"));

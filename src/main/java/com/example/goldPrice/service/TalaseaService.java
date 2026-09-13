@@ -31,7 +31,6 @@ public class TalaseaService {
         this.timeSeriesRepository = timeSeriesRepository;
     }
 
-    @CacheEvict(value = {"talaseaPrice", "finalGoldPrice"}, allEntries = true)
     public void updateRecord(Double talaseaP, String timeFetched) {
 
         TalaseaPrice goldPrice = talaseaRepository.findById(1L)
@@ -59,7 +58,6 @@ public class TalaseaService {
         talaseaRepository.save(goldPrice);
     }
 
-    @Cacheable(value = "talaseaPrice", key = "'latest'")
 //    public double getLatestPrice() {
 //        Map<String, String> res= streamRepository.readLatestPrice("price_stream", "talasea");
 //        return Double.parseDouble(res.get("price"));

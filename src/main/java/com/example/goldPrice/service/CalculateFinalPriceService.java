@@ -13,8 +13,8 @@ public class CalculateFinalPriceService {
     private final TalaseaService talaseaService;
     private final TgjuService tgjuService;
 
-    private double tgjuW = 1.0;
-    private double talaseaW = 1.0;
+    private volatile double tgjuW = 1.0;
+    private volatile double talaseaW = 1.0;
 
     public CalculateFinalPriceService(TalaseaService talaseaService, TgjuService tgjuService){
         this.talaseaService = talaseaService;
@@ -28,7 +28,6 @@ public class CalculateFinalPriceService {
         );
     }
 
-    @Cacheable(value = "finalGoldPrice", key = "'calculated'")
     public double calcGoldPrice() {
         Double currentTalaseaPrice = talaseaService.getLatestPrice();
         Double currentTgjuPrice = tgjuService.getLatestPrice();
@@ -39,7 +38,6 @@ public class CalculateFinalPriceService {
         return (tgjuW * currentTgjuPrice + talaseaW * currentTalaseaPrice) / (tgjuW + talaseaW);
     }
 
-    @CacheEvict(value = "finalGoldPrice", allEntries = true)
     public void updateWeights(Map<String, Double> newWeights) {
         if (newWeights == null) return;
 

@@ -5,6 +5,8 @@ import com.example.goldPrice.model.TgjuPrice;
 import com.example.goldPrice.service.CalculateFinalPriceService;
 import com.example.goldPrice.service.TalaseaService;
 import com.example.goldPrice.service.TgjuService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,6 +27,7 @@ public class PriceController {
 
     }
 
+    @CacheEvict(value = "finalGoldPrice", allEntries = true)
     @PutMapping("/weights")
     public Map<String, Object> updateWeights(@RequestBody Map<String, Double> weights) {
         calcService.updateWeights(weights);
@@ -40,6 +43,7 @@ public class PriceController {
         return calcService.getCurrentW();
     }
 
+    @Cacheable(value = "finalGoldPrice", key = "'calculated'")
     @GetMapping("/calculated-price")
     public Map<String, Object> getFinalPrice() {
         double updatedTgjuPrice = tgjuService.getLatestPrice();
